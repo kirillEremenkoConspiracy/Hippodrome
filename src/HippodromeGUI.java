@@ -53,6 +53,18 @@ public class HippodromeGUI extends JPanel {
 
         timer.start();
 
+        setFocusable(true);
+        requestFocusInWindow();
+
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (gameOver && e.getKeyCode() == java.awt.event.KeyEvent.VK_R) {
+                    restartGame();
+                }
+            }
+        });
+
         try {
             background = ImageIO.read(new File(
                     "C:/JavaProject/Hippodrome/src/resources/background.png"
@@ -103,9 +115,29 @@ public class HippodromeGUI extends JPanel {
 
         if (gameOver && winner != null) {
             g.setFont(new Font("Arial", Font.BOLD, 32));
-            g.setColor(Color.RED);
+            g.setColor(Color.BLACK);
             g.drawString("Победил " + winner.getName() + "!", 250, 200);
+            if (gameOver && winner != null) {
+                g.setFont(new Font("Arial", Font.BOLD, 32));
+                g.setColor(Color.BLACK);
+                g.drawString("Победил " + winner.getName() + "!", 250, 200);
+
+                g.setFont(new Font("Arial", Font.PLAIN, 20));
+                g.setColor(Color.BLACK);
+                g.drawString("Нажмите R для рестарта", 270, 240);
+            }
         }
+    }
+
+    private void restartGame() {
+        for (Horse horse : horses) {
+            horse.setDistance(0);
+        }
+        winner = null;
+        gameOver = false;
+
+        timer.start();
+        repaint();
     }
 }
 
