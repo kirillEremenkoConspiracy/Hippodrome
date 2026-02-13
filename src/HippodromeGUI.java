@@ -14,6 +14,13 @@ public class HippodromeGUI extends JPanel {
     private BufferedImage[] frames;
     private int currentFrame = 0;
 
+    private boolean gameOver = false;
+    private Horse winner = null;
+
+    private final int FINISH_X = 700; // координата финиша
+
+    private BufferedImage background; //фон
+
     public HippodromeGUI(List<Horse> horses) {
         this.horses = horses;
 
@@ -30,7 +37,11 @@ public class HippodromeGUI extends JPanel {
         }
 
         timer = new Timer(120, e -> {
-            moveHorses();
+
+            if (!gameOver) {
+                moveHorses();
+                checkWinner();
+            }
 
             currentFrame++;
             if (currentFrame >= frames.length) {
@@ -41,6 +52,14 @@ public class HippodromeGUI extends JPanel {
         });
 
         timer.start();
+
+        try {
+            background = ImageIO.read(new File(
+                    "C:/JavaProject/Hippodrome/src/resources/background.png"
+            ));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void moveHorses() {
@@ -49,9 +68,25 @@ public class HippodromeGUI extends JPanel {
         }
     }
 
+    private void checkWinner() {
+        for (Horse horse : horses) {
+            if (horse.getDistance() >= FINISH_X) {
+                gameOver = true;
+                winner = horse;
+                timer.stop();
+                break;
+            }
+        }
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        // рисуем фон
+        if (background != null) {
+            g.drawImage(background, 0, 0, getWidth(), getHeight(), null);
+        }
 
         int y = 50;
 
@@ -59,11 +94,17 @@ public class HippodromeGUI extends JPanel {
             int x = (int) horse.getDistance();
 
             g.drawImage(frames[currentFrame], x, y, 80, 50, null);
-            //Отрисовка имени рядосм лошадью
+
             g.setColor(Color.BLACK);
             g.drawString(horse.getName(), x, y - 5);
 
             y += 60;
+        }
+
+        if (gameOver && winner != null) {
+            g.setFont(new Font("Arial", Font.BOLD, 32));
+            g.setColor(Color.RED);
+            g.drawString("Победил " + winner.getName() + "!", 250, 200);
         }
     }
 }
